@@ -1,0 +1,14 @@
+I am aware of following issues :
+
+-Sufficient Headers are not passed in request(only useragent is passed) which can lead to ip-blaclist or 403 forbidden
+  -can be solved if needed
+  
+-Minimum words are used for classifying news
+  -can be solved if needed
+  
+-Scrapper may fail if target <class> is changed
+  -can be refactored if this error occurs
+
+-News can be common for more than one 'classifying_words' so it may be repeated
+  -can be solved by converting lists to set and OneToMany mapping between words and news (as it makes script complicated
+                                                                                          and only simple function was asked to create)
