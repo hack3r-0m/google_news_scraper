@@ -2,7 +2,6 @@ from bs4 import BeautifulSoup
 import sys
 from requests import get, ConnectionError
 import csv
-import time
 
 class Main():
 
@@ -24,6 +23,7 @@ class Main():
         ]
 
     def build_connection(self):
+    
         google_news_url = 'https://news.google.com/?hl=en'
         response = get(google_news_url, headers=self.useragent)
 
@@ -36,15 +36,54 @@ class Main():
 
         raw_soup = BeautifulSoup(response.text, "lxml")
 
-        all_news = list()
+        main_news = []
+        all_news = []
+        hrefs = []
 
-        # gets both primary and secondary news together
-        for news in raw_soup.find_all('a', attrs={'class': 'DY5T1d'}):
+        for news in raw_soup.find_all('h3'):
+            main_news.append(news.text)
+
+
+        for news in raw_soup.find_all(attrs= {  'class': 'SbNwzf',
+                                                'class': 'ipQwMb ekueJc gEATFF RD0gLb',
+                                            }):
             all_news.append(news.text)
 
-        return all_news
+        for tags in raw_soup.find_all(attrs= {
+                                    'class':'VDXfz'
+                                }):
+
+            completer = "https://news.google.com/" + tags['href'][2:]
+            hrefs.append(completer)
+
+        return main_news, all_news, hrefs
+
+    def news_mapper(self, main_news, all_news, hrefs):
+
+        count=0
+
+        with open('output.csv', 'a+', newline='', encoding="utf-8") as board: # newline attribute for omitting blank lines in csv file
+            
+            writer = csv.writer(board)
+            writer.writerow(['HEADLINES','SUB NEWS','LINKS'])
+
+            for news in all_news:
+
+                if news in main_news:
+
+                    writer.writerow([news])
+                    writer.writerow(['','',hrefs[count]])
+
+                else:
+
+                    writer.writerow(['',news,''])
+
+                count += 1
+
+        return None
+
  
-    def result_purifier(self, all_news):
+    def custom_words(self, all_news):
 
         for word in self.special_words:
             for news in all_news:
@@ -52,9 +91,7 @@ class Main():
 
                     if word.lower() == news_word.lower():
 
-                        moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime()) # for creating new csv everytime script is executed
-
-                        with open('output'+moment+'.csv', 'a+', newline='') as board: # newline attribute for omitting blank lines in csv gile
+                        with open('output_custom_words.csv', 'a+', newline='', encoding="utf-8") as board:
                             writer = csv.writer(board)
                             writer.writerow([word,news])
                             board.close()
@@ -64,8 +101,10 @@ class Main():
 if __name__ == '__main__':
     instance = Main()
     connection = instance.build_connection()
-    scrapped_data = instance.build_scrapper(connection)
-    output = instance.result_purifier(scrapped_data)
+    main_news, all_news, hrefs = instance.build_scrapper(connection)
+    output = instance.news_mapper(main_news, all_news, hrefs) # returns None
+    custom_words_output = instance.custom_words(all_news) # returns None
+
 
     print("Process completed! check the output CSV file")
     sys.exit()
