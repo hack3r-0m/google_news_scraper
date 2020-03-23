@@ -1,4 +1,4 @@
-# google_news_parser
+# google_news_scrapper
 Internship Assignment
 
 Build with BeautifulSoup and lxml parser (can also be built with scrapy or selenium)
