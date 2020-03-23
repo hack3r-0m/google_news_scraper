@@ -8,7 +8,3 @@ I am aware of following issues :
   
 -Scrapper may fail if target <class> is changed
   -can be refactored if this error occurs
-
--News can be common for more than one 'classifying_words' so it may be repeated
-  -can be solved by converting lists to set and OneToMany mapping between words and news (as it makes script complicated
-                                                                                          and only simple function was asked to create)
